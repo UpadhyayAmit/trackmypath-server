@@ -1,6 +1,16 @@
+require('./models/User');
+
 const express = require('express');
 const mongoose = require('mongoose');
+
+//to make expres api to understand json based request
+const bodyParser = require('body-parser');
+const authRoutes = require('./routes/authRoutes');
+const requireAuth = require('./middlewares/requireAuth');
+
 const app = express();
+app.use(bodyParser.json());
+app.use(authRoutes);
 
 const mongoUri =
   'mongodb+srv://admin:Admin%40123@cluster0.c5j77.mongodb.net/?retryWrites=true&w=majority';
@@ -14,8 +24,9 @@ mongoose.connection.on('error', (err) => {
   console.error('Error connecting to mongo', err);
 });
 
-app.get('/', (req, res) => {
-  res.send('hi There ?');
+app.get('/', requireAuth, (req, res) => {
+  console.log(req.user.email);
+  res.send(`your email : ${req.user.email}`);
 });
 
 app.listen(3000, () => {
